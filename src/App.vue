@@ -7,12 +7,15 @@
 
 <script>
 import HelloWorld from './components/HelloWorld'
+import Lane from '@/js/Lane'
 
 export default {
   name: 'App',
   data () {
     return {
-      posY: 0
+      posY: 0,
+      laneList: [],
+      column: 12
     }
   },
   computed: {
@@ -25,38 +28,65 @@ export default {
   },
   mounted () {
     this.posY = 0
-    this.drawVerticalText()
+    const lineSpace = 5
+    const fontSize = Math.floor((this.screenSize.width - this.column * lineSpace) / this.column)
+
+    for (let i = 0; i < this.column; i++) {
+      const x = (fontSize + lineSpace) * i
+      const lane = new Lane()
+      lane.position.x = x
+      lane.position.y = 0
+      lane.speed = Math.random() * 1 + 0.1
+      lane.text = 'この作品の評価ですが、' + i
+      this.laneList.push(lane)
+    }
+
+    this.loopAnimation()
   },
   methods: {
-    drawVerticalText: function () {
+    loopAnimation: function () {
+      this.clearCanvas()
+
+      for (let i = 0; i < this.column; i++) {
+        const lane = this.laneList[i]
+        this.drawVerticalText(lane)
+        lane.position.y -= lane.speed
+        const canvas = document.getElementById('world')
+        const context = canvas.getContext('2d')
+        const lineHeight = context.measureText('あ').width
+
+        if (lane.position.y + lineHeight * lane.text.length < 0) {
+          lane.position.y = this.screenSize.height
+        }
+      }
+
+      requestAnimationFrame(this.loopAnimation)
+    },
+    clearCanvas: function () {
       const width = this.screenSize.width
       const height = this.screenSize.height
-      var canvas = document.getElementById('world')
-      var context = canvas.getContext('2d')
+      const canvas = document.getElementById('world')
+      const context = canvas.getContext('2d')
       context.clearRect(0, 0, width, height)
-
+    },
+    drawVerticalText: function (lane) {
+      const width = this.screenSize.width
+      const canvas = document.getElementById('world')
+      const context = canvas.getContext('2d')
       const lineSpace = 5
-      const column = 12
-      const fontSize = Math.floor((width - column * lineSpace) / column)
+      const fontSize = Math.floor((width - this.column * lineSpace) / this.column)
       context.font = `${fontSize}px メイリオ`
       context.fillStyle = 'rgb(255, 255, 255)'
-      var text = 'この作品の評価ですが、'
-      var x = 150
-      var y = this.posY
-      var textList = text.split('\n')
-      var lineHeight = context.measureText('あ').width
+      const text = lane.text
+      const x = lane.position.x
+      const y = lane.position.y
+      const textList = text.split('\n')
+      const lineHeight = context.measureText('あ').width
       textList.forEach(function (elm, i) {
         Array.prototype.forEach.call(elm, function (ch, j) {
           context.fillText(ch, x - lineHeight * i, y + lineHeight * j)
         })
       })
-
-      this.posY -= 2
-
-      if (this.posY + lineHeight * text.length < 0) {
-        this.posY = height
-      }
-      requestAnimationFrame(this.drawVerticalText)
     }
   }
 }
