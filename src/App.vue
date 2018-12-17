@@ -21,6 +21,11 @@ export default {
   computed: {
     screenSize: function () {
       return window.screen
+    },
+    context: function () {
+      const canvas = document.getElementById('world')
+      const context = canvas.getContext('2d')
+      return context
     }
   },
   components: {
@@ -31,13 +36,14 @@ export default {
     const lineSpace = 5
     const fontSize = Math.floor((this.screenSize.width - this.column * lineSpace) / this.column)
 
+    // NOTE: 各レーン情報を作成する
     for (let i = 0; i < this.column; i++) {
       const x = (fontSize + lineSpace) * i
       const lane = new Lane()
       lane.position.x = x
       lane.position.y = 0
       lane.speed = Math.random() * 1 + 0.1
-      lane.text = 'この作品の評価ですが、' + i
+      lane.text = 'OpenProcessing' + i
       this.laneList.push(lane)
     }
 
@@ -49,11 +55,9 @@ export default {
 
       for (let i = 0; i < this.column; i++) {
         const lane = this.laneList[i]
-        this.drawVerticalText(lane)
+        this.drawLane(lane)
         lane.position.y -= lane.speed
-        const canvas = document.getElementById('world')
-        const context = canvas.getContext('2d')
-        const lineHeight = context.measureText('あ').width
+        const lineHeight = this.context.measureText('あ').width
 
         if (lane.position.y + lineHeight * lane.text.length < 0) {
           lane.position.y = this.screenSize.height
@@ -65,28 +69,28 @@ export default {
     clearCanvas: function () {
       const width = this.screenSize.width
       const height = this.screenSize.height
-      const canvas = document.getElementById('world')
-      const context = canvas.getContext('2d')
-      context.clearRect(0, 0, width, height)
+      this.context.clearRect(0, 0, width, height)
     },
-    drawVerticalText: function (lane) {
+    drawLane: function (lane) {
       const width = this.screenSize.width
-      const canvas = document.getElementById('world')
-      const context = canvas.getContext('2d')
       const lineSpace = 5
       const fontSize = Math.floor((width - this.column * lineSpace) / this.column)
-      context.font = `${fontSize}px メイリオ`
-      context.fillStyle = 'rgb(255, 255, 255)'
+      this.context.font = `${fontSize}px メイリオ`
+      this.context.fillStyle = 'rgb(255, 255, 255)'
       const text = lane.text
       const x = lane.position.x
       const y = lane.position.y
       const textList = text.split('\n')
-      const lineHeight = context.measureText('あ').width
+      const lineHeight = this.context.measureText('あ').width
+      const self = this
       textList.forEach(function (elm, i) {
         Array.prototype.forEach.call(elm, function (ch, j) {
-          context.fillText(ch, x - lineHeight * i, y + lineHeight * j)
+          self.context.fillText(ch, x - lineHeight * i, y + lineHeight * j)
         })
       })
+    },
+    drawClickableWord: function () {
+
     }
   }
 }
