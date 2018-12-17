@@ -5,5 +5,7 @@ export default class Lane {
     this.position.y = 0
     this.speed = 0
     this.text = ''
+    this.fontSize = 10
+    this.fillStyle = 'rgb(255, 255, 255)'
   }
 }

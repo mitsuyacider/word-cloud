@@ -14,7 +14,8 @@ export default {
   data () {
     return {
       posY: 0,
-      laneList: [],
+      sentenceList: [],
+      wordList: [],
       column: 12
     }
   },
@@ -39,12 +40,27 @@ export default {
     // NOTE: 各レーン情報を作成する
     for (let i = 0; i < this.column; i++) {
       const x = (fontSize + lineSpace) * i
-      const lane = new Lane()
-      lane.position.x = x
-      lane.position.y = 0
-      lane.speed = Math.random() * 1 + 0.1
-      lane.text = 'OpenProcessing' + i
-      this.laneList.push(lane)
+      const sentence = new Lane()
+      sentence.position.x = x
+      sentence.position.y = 0
+      sentence.fontSize = fontSize
+      sentence.speed = Math.random() * 1 + 0.1
+      sentence.text = 'この作品の評価は高く、多くの鑑賞者から絶賛されています。' + i
+      sentence.fillStyle = 'rgb(100, 100, 100)'
+      this.sentenceList.push(sentence)
+    }
+
+    // NOTE: 選択可能なワード情報を作成する
+    for (let i = 0; i < 5; i++) {
+      const x = (fontSize + lineSpace) * i
+      const word = new Lane()
+      word.position.x = x
+      word.position.y = 0
+      word.fontSize = Math.random() * 20 + 20
+      word.speed = Math.random() * 1 + 0.2
+      word.text = '右手' + i
+      word.fillStyle = 'rgb(255, 255, 255)'
+      this.wordList.push(word)
     }
 
     this.loopAnimation()
@@ -53,16 +69,8 @@ export default {
     loopAnimation: function () {
       this.clearCanvas()
 
-      for (let i = 0; i < this.column; i++) {
-        const lane = this.laneList[i]
-        this.drawLane(lane)
-        lane.position.y -= lane.speed
-        const lineHeight = this.context.measureText('あ').width
-
-        if (lane.position.y + lineHeight * lane.text.length < 0) {
-          lane.position.y = this.screenSize.height
-        }
-      }
+      this.injectLanes(this.sentenceList)
+      this.injectLanes(this.wordList)
 
       requestAnimationFrame(this.loopAnimation)
     },
@@ -71,26 +79,44 @@ export default {
       const height = this.screenSize.height
       this.context.clearRect(0, 0, width, height)
     },
+    // ワードリストを流し込む
+    injectLanes (lanes) {
+      for (let i = 0; i < lanes.length; i++) {
+        const lane = lanes[i]
+        this.drawLane(lane)
+        lane.position.y -= lane.speed
+        const wordWidth = this.context.measureText('あ').width
+
+        if (lane.position.y + wordWidth * lane.text.length < 0) {
+          lane.position.y = this.screenSize.height
+        }
+      }
+    },
     drawLane: function (lane) {
-      const width = this.screenSize.width
-      const lineSpace = 5
-      const fontSize = Math.floor((width - this.column * lineSpace) / this.column)
+      const fontSize = lane.fontSize
       this.context.font = `${fontSize}px メイリオ`
       this.context.fillStyle = 'rgb(255, 255, 255)'
       const text = lane.text
       const x = lane.position.x
       const y = lane.position.y
+
+      // NOTE: Draw background
+      const wordWidth = this.context.measureText('あ').width
+      this.context.fillStyle = 'rgb(0, 0, 0)'
+      this.context.fillRect(x, y, wordWidth, wordWidth * text.length)
+
+      // NOTE: Set anchor point
+      this.context.textBaseline = 'top'
+
+      // NOTE: Draw word(sentence)
+      this.context.fillStyle = lane.fillStyle
       const textList = text.split('\n')
-      const lineHeight = this.context.measureText('あ').width
       const self = this
       textList.forEach(function (elm, i) {
         Array.prototype.forEach.call(elm, function (ch, j) {
-          self.context.fillText(ch, x - lineHeight * i, y + lineHeight * j)
+          self.context.fillText(ch, x - wordWidth * i, y + wordWidth * j)
         })
       })
-    },
-    drawClickableWord: function () {
-
     }
   }
 }
