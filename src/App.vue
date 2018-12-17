@@ -75,8 +75,12 @@ export default {
 
       if (clickedWord !== undefined) {
         console.log(clickedWord)
-        // NOTE: Notify the object to native
-        NativeCommunicator.helloNative(clickedWord.text)
+        // NOTE: Notify the clicked word data to native
+        const data = {
+          word: clickedWord.text,
+          article: 'AXIS Web'
+        }
+        NativeCommunicator.postWordData(data)
       }
     },
     loopAnimation: function () {

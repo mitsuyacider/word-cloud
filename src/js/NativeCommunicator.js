@@ -11,6 +11,15 @@ class NativeCommunicator {
     console.log('helloNative:', message)
     window.webkit.messageHandlers.helloNative.postMessage(message)
   }
+
+  /*
+    NOTE: 選択されたワードデータを送信
+    @param dic : dictionary データ
+  */
+  postWordData (dic) {
+    const postData = JSON.stringify(dic)
+    window.webkit.messageHandlers.onTapWord.postMessage(postData)
+  }
 }
 
 const nativeCommunicator = new NativeCommunicator()
