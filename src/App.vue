@@ -64,8 +64,23 @@ export default {
     }
 
     this.loopAnimation()
+
+    const canvas = document.getElementById('world')
+    // クリックイベントの登録
+    canvas.onclick = this.onClickOnCanvas
   },
   methods: {
+    onClickOnCanvas: function (e) {
+      // NOTE: Check if the clicked position is inside bounding box of word.
+      const x = e.clientX
+      const y = e.clientY
+      const clickedWord = this.wordList.find(word => word.position.x < x && word.position.x + word.fontSize > x && word.position.y < y && word.position.y + word.fontSize * word.text.length > y)
+      
+      if (clickedWord !== undefined) {
+        console.log(clickedWord)
+        // NOTE: Notify the object to native
+      }
+    },
     loopAnimation: function () {
       this.clearCanvas()
 
