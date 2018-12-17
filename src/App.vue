@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import NativeCommunicator from '@/js/NativeCommunicator'
 import Lane from '@/js/Lane'
 
 export default {
@@ -28,9 +28,6 @@ export default {
       const context = canvas.getContext('2d')
       return context
     }
-  },
-  components: {
-    HelloWorld
   },
   mounted () {
     this.posY = 0
@@ -75,10 +72,11 @@ export default {
       const x = e.clientX
       const y = e.clientY
       const clickedWord = this.wordList.find(word => word.position.x < x && word.position.x + word.fontSize > x && word.position.y < y && word.position.y + word.fontSize * word.text.length > y)
-      
+
       if (clickedWord !== undefined) {
         console.log(clickedWord)
         // NOTE: Notify the object to native
+        NativeCommunicator.helloNative(clickedWord.text)
       }
     },
     loopAnimation: function () {
